@@ -1,0 +1,3 @@
+/home/haruta/work/Project/GitWatcher/build/CMakeFiles/GitWatcher.dir
+/home/haruta/work/Project/GitWatcher/build/CMakeFiles/edit_cache.dir
+/home/haruta/work/Project/GitWatcher/build/CMakeFiles/rebuild_cache.dir

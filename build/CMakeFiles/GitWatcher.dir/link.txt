@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/GitWatcher.dir/GitWatcher.c.o -o GitWatcher 
