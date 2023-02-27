@@ -8,9 +8,11 @@
 #include <string.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <stdbool.h>
 
 static void search_directory(const char *);
-static void print_file_information(struct stat *, char *);
+static bool isDirectory(const struct stat *);
+static void print_file_information(const struct stat *, const char *);
 
 int main(int argc, char **argv)
 {
@@ -43,7 +45,7 @@ static void search_directory(const char *path)
 		perror("getcwd");
 		exit(EXIT_FAILURE);
 	}
-	fprintf(stderr, "before: %s\n", cwd_before_moving);
+	// fprintf(stderr, "before: %s\n", cwd_before_moving);
 
 	if (chdir(path) == -1)
 	{
@@ -56,7 +58,7 @@ static void search_directory(const char *path)
 		perror("getcwd");
 		exit(EXIT_FAILURE);
 	}
-	fprintf(stderr, "after: %s\n", cwd_after_moving);
+	// fprintf(stderr, "after: %s\n", cwd_after_moving);
 
 	if ((dirp = opendir(cwd_after_moving)) == NULL)
 	{
@@ -67,13 +69,28 @@ static void search_directory(const char *path)
 	errno = 0;
 	while ((p = readdir(dirp)) != NULL)
 	{
-		fprintf(stderr, "%s\n", p->d_name);
+		if (strcmp(p->d_name, ".") == 0 || strcmp(p->d_name, "..") == 0)
+		{
+			continue;
+		}
+		fprintf(stderr, "%s, %s\n", cwd_after_moving, p->d_name);
+
 		if (lstat(p->d_name, &sb) != 0)
 		{
 			perror("lstat");
+			char buf[PATH_MAX];
+			getcwd(buf, sizeof(buf));
+			fprintf(stderr, "lstat error: %s, %s\n", buf, p->d_name);
 			exit(EXIT_FAILURE);
 		}
-		print_file_information(&sb, p->d_name);
+		// print_file_information(&sb, p->d_name);
+
+		if (isDirectory(&sb) == false)
+		{
+			continue;
+		}
+
+		search_directory(p->d_name);
 	}
 
 	if (errno != 0)
@@ -87,9 +104,20 @@ static void search_directory(const char *path)
 		perror("closedir");
 		exit(EXIT_FAILURE);
 	}
+
+	if (chdir(cwd_before_moving) == -1)
+	{
+		perror("chdir");
+		exit(EXIT_FAILURE);
+	}
 }
 
-static void print_file_information(struct stat *sb, char *path)
+static bool isDirectory(const struct stat *sb)
+{
+	return ((sb->st_mode & __S_IFMT) == __S_IFDIR);
+}
+
+static void print_file_information(const struct stat *sb, const char *path)
 {
 	fprintf(stderr, "Information for %s:\n", path);
 	fprintf(stderr, "  st_ino   = %d\n", (int)sb->st_ino);

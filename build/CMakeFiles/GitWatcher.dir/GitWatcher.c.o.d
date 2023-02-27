@@ -74,4 +74,5 @@ CMakeFiles/GitWatcher.dir/GitWatcher.c.o: \
  /usr/include/x86_64-linux-gnu/bits/dirent_ext.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
- /usr/include/x86_64-linux-gnu/bits/struct_stat.h
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
