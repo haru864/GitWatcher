@@ -14,7 +14,7 @@
 static void searchDirectory(const char *);
 static bool isDirectory(const struct stat *);
 static bool isGitRepository(void);
-// static bool hasRemoteRepository(const char *);
+static bool hasRemoteRepository(void);
 // static bool hasNoPushedCommits(const char *);
 
 int main(int argc, char **argv)
@@ -72,11 +72,11 @@ static void searchDirectory(const char *path)
 	errno = 0;
 	while ((p = readdir(dirp)) != NULL)
 	{
-		if (isGitRepository() == true)
+		if (isGitRepository() == true && hasRemoteRepository() == false)
 		{
 			char buf[256];
 			getcwd(buf, sizeof(buf));
-			printf("%s\n", buf);
+			printf("no remotes => %s\n", buf);
 			break;
 		}
 
@@ -143,4 +143,26 @@ static bool isGitRepository(void)
 	pclose_err(fp);
 
 	return isGitRepo;
+}
+
+static bool hasRemoteRepository()
+{
+	FILE *fp;
+	bool hasRemoteRepo = false;
+	char buf[256];
+	char *message = "  remotes/";
+
+	fp = popen("git branch -a", "r");
+
+	while (fgets(buf, sizeof(buf), fp) != NULL)
+	{
+		if (strncmp(buf, message, strlen(message)) == 0)
+		{
+			hasRemoteRepo = true;
+		}
+	}
+
+	pclose(fp);
+
+	return hasRemoteRepo;
 }
