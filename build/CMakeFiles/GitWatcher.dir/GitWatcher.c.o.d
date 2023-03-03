@@ -75,7 +75,7 @@ CMakeFiles/GitWatcher.dir/GitWatcher.c.o: \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h /usr/include/malloc.h \
  /home/haruta/work/Project/GitWatcher/src/include/process.h \
  /usr/include/x86_64-linux-gnu/sys/uio.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
