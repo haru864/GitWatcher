@@ -9,10 +9,13 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <stdbool.h>
+#include "include/process.h"
 
-static void search_directory(const char *);
+static void searchDirectory(const char *);
 static bool isDirectory(const struct stat *);
-static void print_file_information(const struct stat *, const char *);
+static bool isGitRepository(void);
+// static bool hasRemoteRepository(const char *);
+// static bool hasNoPushedCommits(const char *);
 
 int main(int argc, char **argv)
 {
@@ -27,12 +30,12 @@ int main(int argc, char **argv)
 	strcpy(target_directory, argv[1]);
 	// fprintf(stderr, "dest: %s\n", target_directory);
 
-	search_directory(target_directory);
+	searchDirectory(target_directory);
 
 	return 0;
 }
 
-static void search_directory(const char *path)
+static void searchDirectory(const char *path)
 {
 	char cwd_before_moving[PATH_MAX];
 	char cwd_after_moving[PATH_MAX];
@@ -69,28 +72,31 @@ static void search_directory(const char *path)
 	errno = 0;
 	while ((p = readdir(dirp)) != NULL)
 	{
+		if (isGitRepository() == true)
+		{
+			char buf[256];
+			getcwd(buf, sizeof(buf));
+			printf("%s\n", buf);
+			break;
+		}
+
 		if (strcmp(p->d_name, ".") == 0 || strcmp(p->d_name, "..") == 0)
 		{
 			continue;
 		}
-		fprintf(stderr, "%s, %s\n", cwd_after_moving, p->d_name);
 
 		if (lstat(p->d_name, &sb) != 0)
 		{
 			perror("lstat");
-			char buf[PATH_MAX];
-			getcwd(buf, sizeof(buf));
-			fprintf(stderr, "lstat error: %s, %s\n", buf, p->d_name);
 			exit(EXIT_FAILURE);
 		}
-		// print_file_information(&sb, p->d_name);
 
 		if (isDirectory(&sb) == false)
 		{
 			continue;
 		}
 
-		search_directory(p->d_name);
+		searchDirectory(p->d_name);
 	}
 
 	if (errno != 0)
@@ -117,9 +123,24 @@ static bool isDirectory(const struct stat *sb)
 	return ((sb->st_mode & __S_IFMT) == __S_IFDIR);
 }
 
-static void print_file_information(const struct stat *sb, const char *path)
+static bool isGitRepository(void)
 {
-	fprintf(stderr, "Information for %s:\n", path);
-	fprintf(stderr, "  st_ino   = %d\n", (int)sb->st_ino);
-	fprintf(stderr, "  st_mode  = %d\n", (int)sb->st_mode);
+	FILE *fp;
+	bool isGitRepo = true;
+	char buf[256];
+	char *message = "fatal: not a git repository";
+
+	fp = popen_err("git log");
+
+	while (fgets(buf, sizeof(buf), fp) != NULL)
+	{
+		if (strncmp(buf, message, strlen(message)) == 0)
+		{
+			isGitRepo = false;
+		}
+	}
+
+	pclose_err(fp);
+
+	return isGitRepo;
 }

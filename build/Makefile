@@ -153,6 +153,30 @@ GitWatcher.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/GitWatcher.dir/build.make CMakeFiles/GitWatcher.dir/GitWatcher.c.s
 .PHONY : GitWatcher.c.s
 
+process.o: process.c.o
+.PHONY : process.o
+
+# target to build an object file
+process.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/GitWatcher.dir/build.make CMakeFiles/GitWatcher.dir/process.c.o
+.PHONY : process.c.o
+
+process.i: process.c.i
+.PHONY : process.i
+
+# target to preprocess a source file
+process.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/GitWatcher.dir/build.make CMakeFiles/GitWatcher.dir/process.c.i
+.PHONY : process.c.i
+
+process.s: process.c.s
+.PHONY : process.s
+
+# target to generate assembly for a file
+process.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/GitWatcher.dir/build.make CMakeFiles/GitWatcher.dir/process.c.s
+.PHONY : process.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +189,9 @@ help:
 	@echo "... GitWatcher.o"
 	@echo "... GitWatcher.i"
 	@echo "... GitWatcher.s"
+	@echo "... process.o"
+	@echo "... process.i"
+	@echo "... process.s"
 .PHONY : help
 
 

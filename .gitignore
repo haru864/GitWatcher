@@ -1,3 +1,6 @@
 test/
 .vscode/
 idea/
+
+src/LinkedList.c
+src/include/LinkedList.h

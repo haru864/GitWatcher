@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/haruta/work/Project/GitWatcher/src/GitWatcher.c" "CMakeFiles/GitWatcher.dir/GitWatcher.c.o" "gcc" "CMakeFiles/GitWatcher.dir/GitWatcher.c.o.d"
+  "/home/haruta/work/Project/GitWatcher/src/process.c" "CMakeFiles/GitWatcher.dir/process.c.o" "gcc" "CMakeFiles/GitWatcher.dir/process.c.o.d"
   )
 
 # Targets to which this target links.
