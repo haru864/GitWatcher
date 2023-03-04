@@ -85,8 +85,13 @@ static void searchDirectory(const char *path)
 			printf("no remotes => %s\n", buf);
 			break;
 		}
-
-		isRemoteUpdated();
+		else if (isGitRepository() == true && isRemoteUpdated() == false)
+		{
+			char buf[256];
+			getcwd(buf, sizeof(buf));
+			printf("no updated => %s\n", buf);
+			break;
+		}
 
 		if (strcmp(p->d_name, ".") == 0 || strcmp(p->d_name, "..") == 0)
 		{
@@ -177,15 +182,24 @@ static bool hasRemoteRepository()
 
 static bool isRemoteUpdated(void)
 {
+	bool isUpdated = false;
 	FILE *fp;
 	char buf[256];
 	char *currentBranchName = getCurrentBranch();
+	char *currentBranchNameWithoutLF = (char *)malloc(malloc_usable_size(currentBranchName) - 2);
+	strncpy(currentBranchNameWithoutLF, &currentBranchName[1], malloc_usable_size(currentBranchNameWithoutLF));
+	for (int i = 0; i < malloc_usable_size(currentBranchNameWithoutLF); i++)
+	{
+		if (currentBranchNameWithoutLF[i] == '\n')
+		{
+			currentBranchNameWithoutLF[i] = '\0';
+			break;
+		}
+	}
 	char *remoteBranchName = getRemoteBranch(currentBranchName);
 	char *command_fetch_arg = (char *)malloc(malloc_usable_size(remoteBranchName));
 	char *command_fetch = NULL;
 	char *command_revlist = NULL;
-	printf("%s", currentBranchName);
-	printf("%s", remoteBranchName);
 
 	strcpy(command_fetch_arg, &remoteBranchName[8]);
 	for (int i = 0; i < strlen(command_fetch_arg); i++)
@@ -195,27 +209,32 @@ static bool isRemoteUpdated(void)
 			command_fetch_arg[i] = ' ';
 		}
 	}
-	printf("%s", command_fetch_arg);
 
 	command_fetch = (char *)malloc(malloc_usable_size(command_fetch_arg) + sizeof("git fetch "));
 	snprintf(command_fetch, malloc_usable_size(command_fetch), "git fetch %s", command_fetch_arg);
+	command_revlist = (char *)malloc(malloc_usable_size(currentBranchName) + sizeof("git rev-list FETCH_HEAD.. --count"));
+	snprintf(command_revlist, malloc_usable_size(command_revlist), "git rev-list FETCH_HEAD..%s --count\n", currentBranchNameWithoutLF);
 
-	fp = popen(command_fetch, "r");
-	// fp = popen(command_revlist, "r");
+	fp = popen_err(command_fetch);
+	fp = popen(command_revlist, "r");
 
 	while (fgets(buf, sizeof(buf), fp) != NULL)
 	{
-		printf(" => %s\n", buf);
+		if (strcmp(buf, "0\n") == 0)
+		{
+			isUpdated = true;
+			break;
+		}
 	}
 
-	// pclose(fp);
+	pclose(fp);
 	free(currentBranchName);
 	free(remoteBranchName);
 	free(command_fetch_arg);
 	free(command_fetch);
-	// free(command_revlist);
+	free(command_revlist);
 
-	return false;
+	return isUpdated;
 }
 
 static char *getCurrentBranch(void)
