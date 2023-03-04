@@ -54,7 +54,7 @@ static void searchDirectory(const char *path)
 		perror("getcwd");
 		exit(EXIT_FAILURE);
 	}
-	// fprintf(stderr, "before: %s\n", cwd_before_moving);
+	fprintf(stderr, "before: %s\n", cwd_before_moving);
 
 	if (chdir(path) == -1)
 	{
@@ -67,7 +67,7 @@ static void searchDirectory(const char *path)
 		perror("getcwd");
 		exit(EXIT_FAILURE);
 	}
-	// fprintf(stderr, "after: %s\n", cwd_after_moving);
+	fprintf(stderr, "after: %s\n", cwd_after_moving);
 
 	if ((dirp = opendir(cwd_after_moving)) == NULL)
 	{
@@ -78,18 +78,21 @@ static void searchDirectory(const char *path)
 	errno = 0;
 	while ((p = readdir(dirp)) != NULL)
 	{
-		if (isGitRepository() == true && hasRemoteRepository() == false)
+		if (isGitRepository() == true)
 		{
-			char buf[256];
-			getcwd(buf, sizeof(buf));
-			printf("no remotes => %s\n", buf);
-			break;
-		}
-		else if (isGitRepository() == true && isRemoteUpdated() == false)
-		{
-			char buf[256];
-			getcwd(buf, sizeof(buf));
-			printf("no updated => %s\n", buf);
+			if (hasRemoteRepository() == false)
+			{
+				char buf[256];
+				getcwd(buf, sizeof(buf));
+				printf("no remotes => %s\n", buf);
+			}
+			else if (isRemoteUpdated() == false)
+			{
+				char buf[256];
+				getcwd(buf, sizeof(buf));
+				printf("no updated => %s\n", buf);
+			}
+
 			break;
 		}
 
