@@ -1,12 +1,15 @@
 #include "include/process.h"
 
+#define R 0
+#define W 1
+
 FILE *popen_err(const char *command)
 {
 	FILE *fp = NULL;
 	pid_t ppid, cpid;
 	int status;
-	int fd[2];
 	int nbytes;
+	int fd[2];
 	char buf[256];
 	int devNull = open("/dev/null", O_WRONLY);
 
@@ -21,16 +24,18 @@ FILE *popen_err(const char *command)
 
 	if ((cpid = fork()) == -1)
 	{
+		close(fd[R]);
+		close(fd[W]);
 		perror("fork");
 		exit(1);
 	}
 	else if (cpid == 0)
 	{
-		close(fd[0]);
+		close(fd[R]);
 		dup2(devNull, STDOUT_FILENO);
-		dup2(fd[1], STDERR_FILENO);
+		dup2(fd[W], STDERR_FILENO);
 		execlp("sh", "sh", "-c", command, NULL);
-		close(fd[1]);
+		close(fd[W]);
 		exit(0);
 	}
 
@@ -40,8 +45,8 @@ FILE *popen_err(const char *command)
 		exit(1);
 	}
 
-	close(fd[1]);
-	fp = fdopen(fd[0], "r");
+	close(fd[W]);
+	fp = fdopen(fd[R], "r");
 
 	return fp;
 }

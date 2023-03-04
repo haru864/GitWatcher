@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <malloc.h>
 #include "include/process.h"
+#include "include/LinkedList.h"
 
 static void searchDirectory(const char *path);
 static bool isDirectory(const struct stat *sb);
@@ -19,9 +20,14 @@ static bool hasRemoteRepository(void);
 static bool isRemoteUpdated(void);
 static char *getCurrentBranch(void);
 static char *getRemoteBranch(char *localBranchName);
+// static bool hasNotCommittedFix(void);
 
 // debug
 static void printfHexa(char *);
+
+static struct LinkedList *listOfNoRemotes;	// list of repositories not having remote repositories
+static struct LinkedList *listOfNoUpdated;	// list of repositories having commits that are not pushed to remote repositories
+static struct LinkedList *listOfUncommited; // list of repositories having fixes that are not committed
 
 int main(int argc, char **argv)
 {
@@ -54,7 +60,7 @@ static void searchDirectory(const char *path)
 		perror("getcwd");
 		exit(EXIT_FAILURE);
 	}
-	fprintf(stderr, "before: %s\n", cwd_before_moving);
+	// fprintf(stderr, "before: %s\n", cwd_before_moving);
 
 	if (chdir(path) == -1)
 	{
@@ -67,7 +73,8 @@ static void searchDirectory(const char *path)
 		perror("getcwd");
 		exit(EXIT_FAILURE);
 	}
-	fprintf(stderr, "after: %s\n", cwd_after_moving);
+	// fprintf(stderr, "after: %s\n", cwd_after_moving);
+	printf("%s\n", cwd_after_moving);
 
 	if ((dirp = opendir(cwd_after_moving)) == NULL)
 	{
@@ -219,8 +226,9 @@ static bool isRemoteUpdated(void)
 	snprintf(command_revlist, malloc_usable_size(command_revlist), "git rev-list FETCH_HEAD..%s --count\n", currentBranchNameWithoutLF);
 
 	fp = popen_err(command_fetch);
-	fp = popen(command_revlist, "r");
+	pclose(fp);
 
+	fp = popen(command_revlist, "r");
 	while (fgets(buf, sizeof(buf), fp) != NULL)
 	{
 		if (strcmp(buf, "0\n") == 0)
@@ -229,8 +237,8 @@ static bool isRemoteUpdated(void)
 			break;
 		}
 	}
-
 	pclose(fp);
+
 	free(currentBranchName);
 	free(remoteBranchName);
 	free(command_fetch_arg);
