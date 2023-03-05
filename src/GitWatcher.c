@@ -20,7 +20,7 @@ static bool hasRemoteRepository(void);
 static bool isRemoteUpdated(void);
 static char *getCurrentBranch(void);
 static char *getRemoteBranch(char *localBranchName);
-// static bool hasNotCommittedFix(void);
+static bool isWorkingTreeClean(void);
 
 // debug
 static void printfHexa(char *);
@@ -118,16 +118,21 @@ static void searchDirectory(const char *path)
 				char buf[256];
 				getcwd(buf, sizeof(buf));
 				printf("no remotes => %s\n", buf);
-				int n = insert_node(listOfNoRemotes, buf);
-				// printf("%d\n", n);
+				insert_node(listOfNoRemotes, buf);
 			}
 			else if (isRemoteUpdated() == false)
 			{
 				char buf[256];
 				getcwd(buf, sizeof(buf));
 				printf("no updated => %s\n", buf);
-				int n = insert_node(listOfNoUpdated, buf);
-				// printf("%d\n", n);
+				insert_node(listOfNoUpdated, buf);
+			}
+			else if (isWorkingTreeClean() == false)
+			{
+				char buf[256];
+				getcwd(buf, sizeof(buf));
+				printf("uncommitted => %s\n", buf);
+				insert_node(listOfUncommited, buf);
 			}
 
 			break;
@@ -181,13 +186,13 @@ static bool isGitRepository(void)
 	FILE *fp;
 	bool isGitRepo = true;
 	char buf[256];
-	char *message = "fatal: not a git repository";
+	char *messageOfNotGitRepository = "fatal: not a git repository";
 
 	fp = popen_err("git log");
 
 	while (fgets(buf, sizeof(buf), fp) != NULL)
 	{
-		if (strncmp(buf, message, strlen(message)) == 0)
+		if (strncmp(buf, messageOfNotGitRepository, strlen(messageOfNotGitRepository)) == 0)
 		{
 			isGitRepo = false;
 		}
@@ -198,7 +203,7 @@ static bool isGitRepository(void)
 	return isGitRepo;
 }
 
-static bool hasRemoteRepository()
+static bool hasRemoteRepository(void)
 {
 	FILE *fp;
 	bool hasRemoteRepo = false;
@@ -337,6 +342,28 @@ static char *getRemoteBranch(char *localBranchName)
 	pclose(fp);
 
 	return remoteBranchName;
+}
+
+static bool isWorkingTreeClean(void)
+{
+	FILE *fp;
+	char buf[256];
+	char *messageOfCleanTree = "nothing to commit, working tree clean\n";
+	bool isWorkingTreeClean = false;
+
+	fp = popen_err("git status");
+
+	while (fgets(buf, sizeof(buf), fp) != NULL)
+	{
+		if (strncmp(buf, messageOfCleanTree, strlen(messageOfCleanTree)) == 0)
+		{
+			isWorkingTreeClean = true;
+		}
+	}
+
+	pclose_err(fp);
+
+	return isWorkingTreeClean;
 }
 
 static void printfHexa(char *s)
