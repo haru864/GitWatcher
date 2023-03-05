@@ -1,6 +1,6 @@
 #include "include/LinkedList.h"
 
-static struct LinkedList *getNodeHavingSamePath(struct LinkedList *list, char *path);
+static struct Node *getNodeHavingSamePath(struct LinkedList *list, char *path);
 
 struct LinkedList *init_linkedlist()
 {
@@ -20,7 +20,7 @@ void delete_linkedlist(struct LinkedList *list)
 // failure -> return -1
 int insert_node(struct LinkedList *list, char *path)
 {
-	if (!getNodeHavingSamePath(list, path))
+	if (list->size > 0 && getNodeHavingSamePath(list, path) != NULL)
 	{
 		return -1;
 	}
@@ -31,7 +31,7 @@ int insert_node(struct LinkedList *list, char *path)
 		perror("malloc");
 		exit(1);
 	}
-	newNode->path = path;
+	strcpy(newNode->path, path);
 	newNode->next = newNode->prev = NULL;
 
 	if (list->head == NULL && list->tail == NULL)
@@ -92,9 +92,9 @@ void printAllNode(struct LinkedList *list)
 	}
 }
 
-static struct LinkedList *getNodeHavingSamePath(struct LinkedList *list, char *path)
+static struct Node *getNodeHavingSamePath(struct LinkedList *list, char *path)
 {
-	struct LinkedList *nodeHavingSamePath = NULL;
+	struct Node *nodeHavingSamePath = NULL;
 	struct Node *currentNode;
 
 	if (!list || !path)

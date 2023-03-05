@@ -12,7 +12,7 @@ struct Node
 {
 	struct Node *next;
 	struct Node *prev;
-	char *path;
+	char path[PATH_MAX];
 };
 
 struct LinkedList

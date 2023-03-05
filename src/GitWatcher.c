@@ -32,6 +32,9 @@ static struct LinkedList *listOfUncommited; // list of repositories having fixes
 int main(int argc, char **argv)
 {
 	char target_directory[PATH_MAX];
+	listOfNoRemotes = init_linkedlist();
+	listOfNoUpdated = init_linkedlist();
+	listOfUncommited = init_linkedlist();
 
 	if (argc != 2)
 	{
@@ -40,9 +43,32 @@ int main(int argc, char **argv)
 	}
 
 	strcpy(target_directory, argv[1]);
-	// fprintf(stderr, "dest: %s\n", target_directory);
-
 	searchDirectory(target_directory);
+
+	printf("RESULTS: \n");
+	if (listOfNoRemotes->size > 0)
+	{
+		printf("-- NO REMOTES\n");
+		printAllNode(listOfNoRemotes);
+	}
+	if (listOfNoUpdated->size > 0)
+	{
+		printf("-- NOT UPDATED REMOTES\n");
+		printAllNode(listOfNoUpdated);
+	}
+	if (listOfUncommited->size > 0)
+	{
+		printf("-- NOT COMMITTED FIXES\n");
+		printAllNode(listOfUncommited);
+	}
+	if (listOfNoRemotes->size == 0 && listOfNoUpdated->size == 0 && listOfUncommited->size == 0)
+	{
+		printf("ALL REPOSITORIES UPDATED\n");
+	}
+
+	delete_linkedlist(listOfNoRemotes);
+	delete_linkedlist(listOfNoUpdated);
+	delete_linkedlist(listOfUncommited);
 
 	return 0;
 }
@@ -74,7 +100,7 @@ static void searchDirectory(const char *path)
 		exit(EXIT_FAILURE);
 	}
 	// fprintf(stderr, "after: %s\n", cwd_after_moving);
-	printf("%s\n", cwd_after_moving);
+	printf("%s (CHECKED)\n", cwd_after_moving);
 
 	if ((dirp = opendir(cwd_after_moving)) == NULL)
 	{
@@ -92,12 +118,16 @@ static void searchDirectory(const char *path)
 				char buf[256];
 				getcwd(buf, sizeof(buf));
 				printf("no remotes => %s\n", buf);
+				int n = insert_node(listOfNoRemotes, buf);
+				// printf("%d\n", n);
 			}
 			else if (isRemoteUpdated() == false)
 			{
 				char buf[256];
 				getcwd(buf, sizeof(buf));
 				printf("no updated => %s\n", buf);
+				int n = insert_node(listOfNoUpdated, buf);
+				// printf("%d\n", n);
 			}
 
 			break;

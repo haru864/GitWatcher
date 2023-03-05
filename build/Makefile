@@ -153,6 +153,30 @@ GitWatcher.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/GitWatcher.dir/build.make CMakeFiles/GitWatcher.dir/GitWatcher.c.s
 .PHONY : GitWatcher.c.s
 
+LinkedList.o: LinkedList.c.o
+.PHONY : LinkedList.o
+
+# target to build an object file
+LinkedList.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/GitWatcher.dir/build.make CMakeFiles/GitWatcher.dir/LinkedList.c.o
+.PHONY : LinkedList.c.o
+
+LinkedList.i: LinkedList.c.i
+.PHONY : LinkedList.i
+
+# target to preprocess a source file
+LinkedList.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/GitWatcher.dir/build.make CMakeFiles/GitWatcher.dir/LinkedList.c.i
+.PHONY : LinkedList.c.i
+
+LinkedList.s: LinkedList.c.s
+.PHONY : LinkedList.s
+
+# target to generate assembly for a file
+LinkedList.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/GitWatcher.dir/build.make CMakeFiles/GitWatcher.dir/LinkedList.c.s
+.PHONY : LinkedList.c.s
+
 process.o: process.c.o
 .PHONY : process.o
 
@@ -189,6 +213,9 @@ help:
 	@echo "... GitWatcher.o"
 	@echo "... GitWatcher.i"
 	@echo "... GitWatcher.s"
+	@echo "... LinkedList.o"
+	@echo "... LinkedList.i"
+	@echo "... LinkedList.s"
 	@echo "... process.o"
 	@echo "... process.i"
 	@echo "... process.s"
