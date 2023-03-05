@@ -36,6 +36,7 @@ FILE *popen_err(const char *command)
 		dup2(fd[W], STDERR_FILENO);
 		execlp("sh", "sh", "-c", command, NULL);
 		close(fd[W]);
+		close(devNull);
 		exit(0);
 	}
 
@@ -46,6 +47,7 @@ FILE *popen_err(const char *command)
 	}
 
 	close(fd[W]);
+	close(devNull);
 	fp = fdopen(fd[R], "r");
 
 	return fp;

@@ -24,6 +24,7 @@ static bool isWorkingTreeClean(void);
 
 // debug
 static void printfHexa(char *);
+static void showNumberOfProcess(void);
 
 static struct LinkedList *listOfNoRemotes;	// list of repositories not having remote repositories
 static struct LinkedList *listOfNoUpdated;	// list of repositories having commits that are not pushed to remote repositories
@@ -100,7 +101,7 @@ static void searchDirectory(const char *path)
 		exit(EXIT_FAILURE);
 	}
 	// fprintf(stderr, "after: %s\n", cwd_after_moving);
-	printf("%s (CHECKED)\n", cwd_after_moving);
+	printf("checking... %s\n", cwd_after_moving);
 
 	if ((dirp = opendir(cwd_after_moving)) == NULL)
 	{
@@ -351,7 +352,7 @@ static bool isWorkingTreeClean(void)
 	char *messageOfCleanTree = "nothing to commit, working tree clean\n";
 	bool isWorkingTreeClean = false;
 
-	fp = popen_err("git status");
+	fp = popen("git status", "r");
 
 	while (fgets(buf, sizeof(buf), fp) != NULL)
 	{
@@ -361,7 +362,7 @@ static bool isWorkingTreeClean(void)
 		}
 	}
 
-	pclose_err(fp);
+	pclose(fp);
 
 	return isWorkingTreeClean;
 }
@@ -373,4 +374,22 @@ static void printfHexa(char *s)
 		printf("%x ", s[i]);
 	}
 	printf("\n");
+}
+
+static void showNumberOfProcess(void)
+{
+	FILE *fp;
+	char buf[256];
+
+	fp = popen("ps ax | wc -l", "r");
+
+	if (fgets(buf, sizeof(buf), fp) == NULL)
+	{
+		perror("fgets");
+		exit(1);
+	}
+
+	fprintf(stderr, "number of process: %s\n", buf);
+
+	pclose(fp);
 }
